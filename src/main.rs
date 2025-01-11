@@ -28,7 +28,6 @@ async fn main() -> anyhow::Result<()> {
         tokio::spawn(write_side(port,writer,sender.subscribe()));
     }
 }
-// Note: Each of these threads can error out due to the not being able to recieve/send back. Doing so will end the thread, which has the side-effect of not having threads run for people who quit
 
 async fn read_side(port: u16,listener:BufReader<OwnedReadHalf>,tx: Sender<Message>)-> anyhow::Result<()>{
     let mut lines = listener.lines();
@@ -43,6 +42,7 @@ async fn read_side(port: u16,listener:BufReader<OwnedReadHalf>,tx: Sender<Messag
 }
 
 
+// Note: Each of these threads can error out due to the not being able to send back. Doing so will end the thread, which has the side-effect of not having threads run for people who quit
 
 async fn write_side(port:u16,mut writer: BufWriter<OwnedWriteHalf>,mut rx:Receiver<Message>)-> anyhow::Result<()>{
     writer.write(&format!("LOGIN:{}\n",port).into_bytes()).await?;
